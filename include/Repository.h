@@ -12,6 +12,8 @@ namespace Component {
                 Repository();
                 Repository(Poco::Data::Session &);
                 ~Repository();
+
+                void initTenant();
                 void insert(Tenant & tenent);
                 void insert(City & city);
                 void pop(Tenant & tenent);

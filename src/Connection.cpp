@@ -16,11 +16,11 @@ Connection::~Connection()
     cout << "MySQL connection closed: " << this->credentials << endl;
 }
 
-Connection & Connection::getInstance() {
+Connection * Connection::getInstance() {
     if (!pInstance) {
         pInstance = new Connection();
     }
-    return *pInstance;
+    return pInstance;
 }
 
 void Connection::close() {

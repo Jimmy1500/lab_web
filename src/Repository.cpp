@@ -3,7 +3,7 @@
 using Component::Data::Repository;
 
 Repository::Repository() :
-    session(Component::Data::Connection::getInstance().getSession())
+    session(Component::Data::Connection::getInstance()->getSession())
 {
 }
 
@@ -14,6 +14,11 @@ Repository::Repository(Poco::Data::Session & session) :
 
 Repository::~Repository() {
     Component::Data::Connection::close();
+}
+
+void Repository::initTenant() {
+    session << "DROP TABLE IF EXISTS tenant", now;
+    session << "CREATE TABLE tenant (tenant_id int(30), tenant_name VARCHAR(45), inserted_date DATETIME, updated_data DATETIME)", now;
 }
 
 void Repository::insert(Tenant & tenant) {

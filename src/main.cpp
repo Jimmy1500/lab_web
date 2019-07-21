@@ -17,13 +17,13 @@ int main()
 {
     try
     {
-        Repository repo = Repository();
+        Repository mysql_database = Repository();
         Tenant tenant = { 0, "Germany" };
-        repo.insert(tenant);
-        repo.pop(tenant);
+        mysql_database.insert(tenant);
+        mysql_database.pop(tenant);
 
         City city = { "uuid", 0, "city_name", "city_name_native", 0.0, 0.0, "cnty", "transportation_region", "position_region", "cntry" };
-        repo.pop(city);
+        mysql_database.pop(city);
     }
 
     catch (Poco::Data::MySQL::ConnectionException& e)

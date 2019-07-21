@@ -48,16 +48,16 @@ namespace Component {
                 string port="port=3306;";
                 string compress="compress=true;";
                 string autoReconnect="auto-connect=true;";
-
                 string credentials;
+
+                static Connection * pInstance;
 
                 Connection();
                 ~Connection();
-                static Connection * pInstance;
-            protected:
             public:
-                static Connection & getInstance();
+                static Connection * getInstance();
                 static void close();
+
                 Poco::Data::Session getSession();
         };
     }
