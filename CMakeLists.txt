@@ -10,14 +10,14 @@ list(APPEND CMAKE_CXX_FLAGS "${CXX_FLAG} ${CXX_DBG} ${CXX_THD}")
 
 include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
-add_executable(main ${SOURCES})
+add_executable(Test ${SOURCES})
 
 link_directories(/usr/local/lib)
 set(FOUNDATION_LIB "PocoFoundation")
 set(DATA_LIB "PocoData")
 set(MYSQL_LIB "PocoDataMySQL")
-target_link_libraries(main ${FOUNDATION_LIB} ${DATA_LIB} ${MYSQL_LIB})
+target_link_libraries(Test ${FOUNDATION_LIB} ${DATA_LIB} ${MYSQL_LIB})
 
 # PHONY TARGETS
-add_custom_target(run "./main")
-add_custom_target(memcheck memcheck "./main")
+add_custom_target(run "./Test")
+add_custom_target(memcheck memcheck "./Test")
