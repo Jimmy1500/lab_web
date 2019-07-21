@@ -41,19 +41,24 @@ namespace Component {
     namespace Data {
         class Connection {
             private:
-                string Host="host=127.0.0.1;";
-                string User="user=jding;";
-                string Password="password=jding;";
-                string Db="db=optitrade_emea;";
-                string Port="port=3306;";
-                string Compress="compress=true;";
-                string AutoReconnect="auto-connect=true;";
+                string host="host=127.0.0.1;";
+                string user="user=jding;";
+                string password="password=jding;";
+                string db="db=optitrade_emea;";
+                string port="port=3306;";
+                string compress="compress=true;";
+                string autoReconnect="auto-connect=true;";
 
-                string ConnStr;
+                string credentials;
+
+                Connection();
+                ~Connection();
+                static Connection * pInstance;
             protected:
             public:
-                Connection();
-                Poco::Data::Session GetSession();
+                static Connection & getInstance();
+                static void close();
+                Poco::Data::Session getSession();
         };
     }
 }

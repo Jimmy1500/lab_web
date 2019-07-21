@@ -2,13 +2,33 @@
 
 using Component::Data::Connection;
 
-Connection::Connection() :
-    ConnStr(Host + User + Password + Db + Port + Compress + AutoReconnect)
+
+Connection * Connection::pInstance = nullptr;
+
+Connection::Connection() : credentials(host + user + password + db + port + compress + autoReconnect)
 {
     Poco::Data::MySQL::Connector::registerConnector();
-    cout << "Mysql database connector registered: " << this->ConnStr << endl;
+    cout << "MySQL connection established: " << this->credentials << endl;
 }
 
-Session Connection::GetSession() {
-    return Poco::Data::SessionFactory::instance().create(Poco::Data::MySQL::Connector::KEY, ConnStr);
+Connection::~Connection()
+{
+    cout << "MySQL connection closed: " << this->credentials << endl;
+}
+
+Connection & Connection::getInstance() {
+    if (!pInstance) {
+        pInstance = new Connection();
+    }
+    return *pInstance;
+}
+
+void Connection::close() {
+    if (pInstance) {
+        delete pInstance;
+    }
+}
+
+Session Connection::getSession() {
+    return Poco::Data::SessionFactory::instance().create(Poco::Data::MySQL::Connector::KEY, credentials);
 }
