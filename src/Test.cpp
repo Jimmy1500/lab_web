@@ -1,8 +1,7 @@
-#include <iostream>
 #include <string>
-#include <iostream>
 #include <thread>
 #include <chrono>
+#include <iostream>
 
 #include <Poco/Data/MySQL/MySQLException.h>
 

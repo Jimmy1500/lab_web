@@ -1,16 +1,9 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-#include <iostream>
-#include <string>
-#include <Poco/Data/MySQL/MySQLException.h>
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/Data/SessionFactory.h>
-
-#include <iostream>
-#include <thread>
-#include <chrono>
 
 using namespace std;
 using namespace Poco::Data::Keywords;
