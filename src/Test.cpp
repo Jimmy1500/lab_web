@@ -18,12 +18,14 @@ int main()
     {
         Repository db = Repository();
 
-        Tenant tenant = { 0, "Germany" };
+        Tenant tenant = { 5, "Germany" };
         db.insert(tenant);
         db.pop(tenant);
+        db.popById(tenant);
 
         City city = { "uuid", 0, "city_name", "city_name_native", 0.0, 0.0, "cnty", "transportation_region", "position_region", "cntry" };
         db.pop(city);
+        db.popById(city);
     }
 
     catch (Poco::Data::MySQL::ConnectionException& e)

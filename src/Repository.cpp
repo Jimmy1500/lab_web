@@ -37,9 +37,50 @@ void Repository::pop(Tenant & tenant) {
     }
 }
 
+void Repository::popById(Tenant & tenant) {
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM tenant WHERE tenant_id = ?", use(tenant.id), into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
+    while (!select.done())
+    {
+        select.execute();
+        cout << tenant.id << " " << tenant.name << endl;
+    }
+}
+
 void Repository::pop(City & city) {
     Poco::Data::Statement select(session);
     select << "SELECT * FROM city",
+           into(city.id),
+           into(city.tenant_id),
+           into(city.name),
+           into(city.name_native),
+           into(city.latitude),
+           into(city.longitude),
+           into(city.county),
+           into(city.transportation_region),
+           into(city.position_region),
+           into(city.country_code), range(0, 1);
+
+    while (!select.done())
+    {
+        select.execute();
+        cout << city.id << " "
+                << city.name << " "
+                << city.name_native << " "
+                << city.latitude << " "
+                << city.longitude << " "
+                << city.county << " "
+                << city.transportation_region << " "
+                << city.position_region << " "
+                << city.country_code << " "
+                << endl;
+    }
+}
+
+void Repository::popById(City & city) {
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM city WHERE city_id = ?",
+           use(city.id),
            into(city.id),
            into(city.tenant_id),
            into(city.name),

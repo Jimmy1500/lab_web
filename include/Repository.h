@@ -14,10 +14,14 @@ namespace Component {
                 ~Repository();
 
                 void initTenant();
+
                 void insert(Tenant & tenent);
-                void insert(City & city);
                 void pop(Tenant & tenent);
+                void popById(Tenant & tenent);
+
+                void insert(City & city);
                 void pop(City & city);
+                void popById(City & city);
         };
     }
 }
