@@ -1,55 +1,36 @@
 #include <iostream>
 #include <string>
-#include <Poco/Data/MySQL/MySQLException.h>
-#include <Poco/Data/MySQL/Connector.h>
-#include <Poco/Data/Session.h>
-#include <Poco/Data/SessionFactory.h>
-
 #include <iostream>
 #include <thread>
 #include <chrono>
 
+#include <Poco/Data/MySQL/MySQLException.h>
+#include "Connection.h"
+#include "TenantRepository.h"
+
 using namespace std;
-using namespace Poco::Data::Keywords;
-using namespace Poco::Data::MySQL;
-using Poco::Data::Session;
-using Poco::Data::SessionFactory;
-using Poco::Data::Statement;
-
-struct Tenant
-{
-    int         id;
-    string      name;
-};
-
-struct City
-{
-    string      id;
-    int         tenant_id;
-    string      name;
-    string      name_native;
-    double      latitude;
-    double      longitude;
-    string      county;
-    string      trans_region;
-    string      posit_region;
-    string      country_code;
-};
+using Component::Data::Connection;
+using Component::Data::TenantRepository;
 
 int main()
 {
-    // register SQLite connector
-    Poco::Data::MySQL::Connector::registerConnector();
+    // register MySQL connector
+    // Poco::Data::MySQL::Connector::registerConnector();
     try
     {
-        // create a session
+        // Connection conn = Connection();
+        // Session session = conn.GetSession();
+        TenantRepository repo = TenantRepository();
+        Tenant tenant = { 0, "Germany" };
+        repo.Insert(tenant);
+        repo.Pop(tenant);
+        /* create a session
         string str = "host=127.0.0.1;user=jding;password=jding;compress=true;db=optitrade_emea;port=3306;auto-reconnect=true";
         Poco::Data::Session session(Poco::Data::SessionFactory::instance().create(Poco::Data::MySQL::Connector::KEY, str));
 
         // session << "DROP TABLE IF EXISTS tenant", now;
         // session << "CREATE TABLE tenant (tenant_id int(30), tenant_name VARCHAR(45), inserted_date DATETIME, updated_data DATETIME)", now;
 
-        Tenant tenant = { 0, "Germany" };
 
         Statement insert_tenant(session);
         insert_tenant << "INSERT INTO tenant (tenant_name) (SELECT ? WHERE NOT EXISTS (SELECT * FROM tenant WHERE tenant_name = ?))", use(tenant.name), use(tenant.name);
@@ -83,8 +64,9 @@ int main()
                 << city.posit_region << " "
                 << city.country_code << " "
                 << endl;
-        }
+        } */
     }
+
     catch (Poco::Data::MySQL::ConnectionException& e)
     {
         cout << "Connection Exception: " << e.what() << endl;
@@ -96,6 +78,6 @@ int main()
         return -1;
     }
 
-    this_thread::sleep_for (chrono::seconds(1));
+    this_thread::sleep_for (chrono::milliseconds(200));
     return 0;
 }
