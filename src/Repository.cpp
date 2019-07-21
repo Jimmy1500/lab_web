@@ -37,7 +37,6 @@ void Repository::pop(Tenant & tenant) {
     }
 }
 
-
 void Repository::pop(City & city) {
     Poco::Data::Statement select(session);
     select << "SELECT * FROM city",
