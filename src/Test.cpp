@@ -5,27 +5,26 @@
 
 #include <Poco/Data/MySQL/MySQLException.h>
 
-#include "Connection.h"
 #include "Repository.h"
 
 using namespace std;
-using Component::Data::Connection;
-using Component::Data::Repository;
+using Component::Repository;
 
 int main()
 {
     try
     {
-        Repository db = Repository();
+        Repository repo1 = Repository();
+        Repository repo2 = Repository();
 
         Tenant tenant = { 5, "Germany" };
-        db.insert(tenant);
-        db.pop(tenant);
-        db.popById(tenant);
+        repo1.insert(tenant);
+        repo1.pop(tenant);
+        repo1.popById(tenant);
 
-        City city = { "uuid", 0, "city_name", "city_name_native", 0.0, 0.0, "cnty", "transportation_region", "position_region", "cntry" };
-        db.pop(city);
-        db.popById(city);
+        City city = { "a594e0a9-92f5-11e9-9d02-e0d55e84a5b0", 0, "city_name", "city_name_native", 0.0, 0.0, "cnty", "transportation_region", "position_region", "cntry" };
+        // repo2.pop(city);
+        repo2.popById(city);
     }
 
     catch (Poco::Data::MySQL::ConnectionException& e)
@@ -39,6 +38,6 @@ int main()
         return -1;
     }
 
-    this_thread::sleep_for (chrono::milliseconds(500));
+    this_thread::sleep_for (chrono::milliseconds(250));
     return 0;
 }
