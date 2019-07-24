@@ -19,6 +19,7 @@ Repository::Repository(size_t minSessions, size_t maxSessions, size_t idleTime) 
 }
 
 Repository::~Repository() {
+    Poco::Data::MySQL::Connector::unregisterConnector(); 
     if (poolRefCount) {
         poolRefCount--;
         if (!poolRefCount && pool) {
@@ -29,7 +30,6 @@ Repository::~Repository() {
             cout << "Connection " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " unregistered with: " << connectionString << endl;
         }
     }
-    Poco::Data::MySQL::Connector::unregisterConnector(); 
 }
 
 Session Repository::getSession() {
