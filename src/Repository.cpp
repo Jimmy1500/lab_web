@@ -52,14 +52,20 @@ void Repository::insert(Tenant & tenant) {
     insert.execute();
 }
 
-void Repository::pop(Tenant & tenant) {
+void Repository::popAll(std::vector<Tenant> & tenants) {
+    std::vector<size_t> ids;
+    std::vector<string> names;
+
     Session session(getSession());
     Poco::Data::Statement select(session);
-    select << "SELECT * FROM tenant", into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
-    while (!select.done())
-    {
-        select.execute();
-        cout << tenant.id << " " << tenant.name << endl;
+    select << "SELECT * FROM tenant", into(ids), into(names), now; //  iterate over result set one row at a time
+    if (ids.size() != names.size()){
+        throw Poco::Data::MySQL::StatementException("query returns results unmatched in size");
+    }
+    size_t i;
+    for ( i = 0; i < ids.size(); ++i ) {
+        tenants.push_back( { ids.at(i), names.at(i) } );
+        cout << ids.at(i) << " " << names.at(i) << endl;
     }
 }
 
@@ -74,7 +80,8 @@ void Repository::popById(Tenant & tenant) {
     }
 }
 
-void Repository::pop(City & city) {
+void Repository::scanAll() {
+    City city;
     Session session(getSession());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM city",

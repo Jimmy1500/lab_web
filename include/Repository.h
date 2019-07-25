@@ -5,9 +5,11 @@
 #include <Poco/Data/Session.h>
 #include <Poco/Data/SessionPool.h>
 #include <Poco/Data/SessionFactory.h>
+#include <Poco/Data/MySQL/MySQLException.h>
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 using namespace Poco::Data::Keywords;
@@ -17,14 +19,14 @@ using Poco::Data::SessionFactory;
 
 struct Tenant
 {
-    int         id;
+    size_t      id;
     string      name;
 };
 
 struct City
 {
     string      id;
-    int         tenant_id;
+    size_t      tenant_id;
     string      name;
     string      name_native;
     double      latitude;
@@ -58,11 +60,10 @@ namespace Component {
             void initTenant();
 
             void insert(Tenant & tenent);
-            void pop(Tenant & tenent);
+            void popAll(std::vector<Tenant> &);
             void popById(Tenant & tenent);
 
-            void insert(City & city);
-            void pop(City & city);
+            void scanAll();
             void popById(City & city);
     };
 }

@@ -10,7 +10,7 @@
 using namespace std;
 using Component::Repository;
 
-int main()
+int main(int argc, char * argv[])
 {
     try
     {
@@ -18,12 +18,14 @@ int main()
         Repository repo2 = Repository();
 
         Tenant tenant = { 5, "Germany" };
+        std::vector<Tenant> tenants;
+        City city = { "a594e0a9-92f5-11e9-9d02-e0d55e84a5b0", 0, "", "", 0.0, 0.0, "", "", "", "" };
+
         repo1.insert(tenant);
-        repo1.pop(tenant);
+        repo1.popAll(tenants);
         repo1.popById(tenant);
 
-        City city = { "a594e0a9-92f5-11e9-9d02-e0d55e84a5b0", 0, "city_name", "city_name_native", 0.0, 0.0, "cnty", "transportation_region", "position_region", "cntry" };
-        // repo2.pop(city);
+        repo2.scanAll();
         repo2.popById(city);
     }
 
@@ -38,6 +40,6 @@ int main()
         return -1;
     }
 
-    this_thread::sleep_for (chrono::milliseconds(250));
+    // this_thread::sleep_for (chrono::milliseconds(250));
     return 0;
 }
