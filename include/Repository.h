@@ -63,7 +63,7 @@ namespace Component {
             void popAll(std::vector<Tenant> &);
             void popById(Tenant & tenent);
 
-            void scanAll();
+            void scanCities();
             void popById(City & city);
     };
 }

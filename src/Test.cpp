@@ -25,7 +25,7 @@ int main(int argc, char * argv[])
         repo1.popAll(tenants);
         repo1.popById(tenant);
 
-        repo2.scanAll();
+        repo2.scanCities();
         repo2.popById(city);
     }
 

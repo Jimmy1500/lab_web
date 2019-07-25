@@ -80,7 +80,7 @@ void Repository::popById(Tenant & tenant) {
     }
 }
 
-void Repository::scanAll() {
+void Repository::scanCities() {
     City city;
     Session session(getSession());
     Poco::Data::Statement select(session);
