@@ -2,6 +2,7 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include "crow_all.h"
 
 #include <Poco/Data/MySQL/MySQLException.h>
 
