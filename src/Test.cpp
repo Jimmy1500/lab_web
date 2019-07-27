@@ -15,7 +15,7 @@ int main(int argc, char * argv[])
     // app.loglevel(crow::LogLevel::Warning);
 
     CROW_ROUTE(app, "/")
-    ([]() -> string& {
+    ([](){
         return "Hello world!";
     });
 
