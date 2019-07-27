@@ -41,6 +41,7 @@ int main(int argc, char * argv[])
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
         }
+        // return x;
         return crow::response{x};
     });
 
