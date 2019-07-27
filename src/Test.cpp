@@ -2,10 +2,8 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include "crow_all.h"
-
 #include <Poco/Data/MySQL/MySQLException.h>
-
+#include "crow_all.h"
 #include "Repository.h"
 
 using namespace std;
@@ -17,7 +15,7 @@ int main(int argc, char * argv[])
     // app.loglevel(crow::LogLevel::Warning);
 
     CROW_ROUTE(app, "/")
-    ([]() {
+    ([]() -> string& {
         return "Hello world!";
     });
 
@@ -69,6 +67,15 @@ int main(int argc, char * argv[])
         return crow::response{x};
     });
 
+    CROW_ROUTE(app, "/html").methods("GET"_method)
+    ([](){
+        return crow::response {
+        "<h1>hello world<h1>            \
+        <div>                           \
+            <p>accessible document<p>   \
+        <div>"
+        };
+    });
     app.port(8080).multithreaded().run();
 
     return 0;
