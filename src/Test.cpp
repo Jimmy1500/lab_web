@@ -12,34 +12,63 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-    try
-    {
-        Component::Repository repo1 = Component::Repository();
-        Component::Repository repo2 = Component::Repository();
+    crow::SimpleApp app;
+    Component::Repository repo = Component::Repository();
+    // app.loglevel(crow::LogLevel::Warning);
 
-        Tenant tenant = { 5, "Germany" };
-        std::vector<Tenant> tenants;
-        City city = { "a594e0a9-92f5-11e9-9d02-e0d55e84a5b0", 0, "", "", 0.0, 0.0, "", "", "", "" };
+    CROW_ROUTE(app, "/")
+    ([]() {
+        return "Hello world!";
+    });
 
-        repo1.insert(tenant);
-        repo1.popAll(tenants);
-        repo1.popById(tenant);
+    CROW_ROUTE(app, "/health")
+    ([]{
+        crow::json::wvalue x;
+        x["message"] = "Hello, World!";
+        return x;
+    });
 
-        repo2.scanCities();
-        repo2.popById(city);
-    }
+    CROW_ROUTE(app, "/tenant/<int>").methods("GET"_method)
+    ([&repo](const crow::request& req, int id){ // compile time input type check
+        crow::json::wvalue x;
+        try{
+            Tenant tenant = { id };
+            repo.popById(tenant);
+            x["tenant_id"] = tenant.id;
+            x["name"] = tenant.name;
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
+        return crow::response{x};
+    });
 
-    catch (Poco::Data::MySQL::ConnectionException& e)
-    {
-        cout << "Connection Exception: " << e.what() << endl;
-        return -1;
-    }
-    catch(Poco::Data::MySQL::StatementException& e)
-    {
-        cout << "Statement Exception: " << e.what() << endl;
-        return -1;
-    }
+    CROW_ROUTE(app, "/city/<string>").methods("GET"_method)
+    ([&repo](const crow::request& req, string uuid){ // compile time input type check
+        crow::json::wvalue x;
+        try{
+            City city = { uuid };
+            repo.popById(city);
+            x["city_id"] = city.id;
+            x["tenant_id"] = city.tenant_id;
+            x["city_name"] = city.name;
+            x["city_native_name"] = city.name_native;
+            x["latitude"] = city.name_native;
+            x["longitude"] = city.longitude;
+            x["county"] = city.county;
+            x["transportation_region"] = city.transportation_region;
+            x["position_region"] = city.position_region;
+            x["country_code"] = city.country_code;
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
+        return crow::response{x};
+    });
 
-    // this_thread::sleep_for (chrono::milliseconds(250));
+    app.port(8080).multithreaded().run();
+
     return 0;
 }
