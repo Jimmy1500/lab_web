@@ -52,7 +52,7 @@ void Component::Repository::insert(Tenant & tenant) {
 }
 
 void Component::Repository::popAll(std::vector<Tenant> & tenants) {
-    std::vector<size_t> ids;
+    std::vector<int> ids;
     std::vector<string> names;
 
     Session session(getSession());

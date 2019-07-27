@@ -20,14 +20,14 @@ using Poco::Data::SessionFactory;
 
 struct Tenant
 {
-    size_t      id;
+    int         id;
     string      name;
 };
 
 struct City
 {
     string      id;
-    size_t      tenant_id;
+    int         tenant_id;
     string      name;
     string      name_native;
     double      latitude;
