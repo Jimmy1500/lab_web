@@ -8,14 +8,13 @@
 #include "Repository.h"
 
 using namespace std;
-using Component::Repository;
 
 int main(int argc, char * argv[])
 {
     try
     {
-        Repository repo1 = Repository();
-        Repository repo2 = Repository();
+        Component::Repository repo1 = Component::Repository();
+        Component::Repository repo2 = Component::Repository();
 
         Tenant tenant = { 5, "Germany" };
         std::vector<Tenant> tenants;
