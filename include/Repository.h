@@ -41,13 +41,13 @@ struct City
 namespace Component {
     class Repository {
         private:
-            string host="host=127.0.0.1;";
-            string user="user=jding;";
-            string password="password=jding;";
-            string db="db=optitrade_emea;";
-            string port="port=3306;";
-            string compress="compress=true;";
-            string autoReconnect="auto-connect=true;";
+            string host="127.0.0.1";
+            string user;
+            string password;
+            string db;
+            string port="3306";
+            string compress="true";
+            string autoReconnect="true";
             string connectionString;
 
             static SessionPool * pool;

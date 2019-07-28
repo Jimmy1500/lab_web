@@ -4,16 +4,23 @@ SessionPool * Component::Repository::pool = nullptr;
 size_t Component::Repository::poolRefCount = 0;
 
 Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t idleTime) :
-    connectionString(host + user + password + db + port + compress + autoReconnect)
+    user(getenv("DB_USERNAME")),
+    password(getenv("DB_PASSWORD")),
+    db(getenv("DB_DATABASE")),
+    connectionString(
+            "host=" + host +
+            ";user=" + user + ";password=" + password + ";db=" + db +
+            ";port=" + port + ";compress=" + compress + ";auto-reconnect=" + autoReconnect + ";"
+            )
 {
     Poco::Data::MySQL::Connector::registerConnector(); 
     if (poolRefCount) {
         poolRefCount++;
-        cout << "Connection " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << " registed with: " << connectionString << endl;
+        cout << "Connector " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << " registed with: " << connectionString << endl;
     } else if (!pool) {
         pool = new SessionPool(Poco::Data::MySQL::Connector::KEY, connectionString, minSessions, maxSessions, idleTime);
         poolRefCount++;
-        cout << "Connection " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << " established with: " << connectionString << endl;
+        cout << "Connector " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << ", created with: " << connectionString << endl;
     }
 }
 
@@ -24,9 +31,9 @@ Component::Repository::~Repository() {
         if (!poolRefCount && pool) {
             delete pool;
             pool = nullptr;
-            cout << "Connection " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " disestablished with: " << connectionString << endl;
+            cout << "Connector " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " destoryed with: " << connectionString << endl;
         } else {
-            cout << "Connection " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " unregistered with: " << connectionString << endl;
+            cout << "Connector " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " unregistered with: " << connectionString << endl;
         }
     }
 }
@@ -69,7 +76,7 @@ void Component::Repository::popAll(std::vector<Tenant> & tenants) {
 }
 
 void Component::Repository::popById(Tenant & tenant) {
-    Session session(this->getSession());
+    Session session(getSession());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM tenant WHERE tenant_id = ?", use(tenant.id), into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
     while (!select.done())
