@@ -52,19 +52,21 @@ namespace Component {
             string connectionString;
 
             static SessionPool * pool;
-            static size_t poolRefCount;
+            static size_t maxPoolSize;
+            static size_t connectorCount;
         public:
             Repository(size_t minSessions = 1, size_t maxSessions = 32, size_t idleTime = 60);
             ~Repository();
 
             void initTenant();
+            void insert(Tenant & );
+            void popById(int, Tenant &);
+            void popById(string &, City &);
 
-            void insert(Tenant & tenent);
             void popTenants(std::vector<int> &, std::vector<string> &);
-            void popById(Tenant & tenent);
+            void popAll(std::vector<Tenant> &);
+            void popAll(std::vector<City> &);
 
-            void scanCities();
-            void popById(City & city);
     };
 }
 #endif

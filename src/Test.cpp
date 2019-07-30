@@ -30,20 +30,19 @@ int main(int argc, char * argv[])
         Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
-            std::vector<int> ids;
-            std::vector<string> names;
-            db.popTenants(ids, names);
-            size_t i;
-            for (i = 0; i < ids.size(); ++i) {
-                x[i]["tenant_id"] = ids.at(i);
-                x[i]["name"] = names.at(i);
+            std::vector<Tenant> tenants;
+            db.popAll(tenants);
+            size_t i = 0;
+            for (Tenant const & tenant : tenants) {
+                x[i]["tenant_id"] = tenant.id;
+                x[i]["name"] = tenant.name;
+                ++i;
             }
         } catch (Poco::Data::MySQL::ConnectionException& e) {
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
         }
-        // return x;
         return crow::response{x};
     });
 
@@ -52,8 +51,8 @@ int main(int argc, char * argv[])
         Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
-            Tenant tenant = { id };
-            db.popById(tenant);
+            Tenant tenant;
+            db.popById(id, tenant);
             x["tenant_id"] = tenant.id;
             x["name"] = tenant.name;
         } catch (Poco::Data::MySQL::ConnectionException& e) {
@@ -61,17 +60,45 @@ int main(int argc, char * argv[])
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
         }
-        // return x;
+        return crow::response{x};
+    });
+
+    CROW_ROUTE(app, "/city").methods("GET"_method)
+    ([](){
+        Component::Repository db = Component::Repository();
+        crow::json::wvalue x;
+        try{
+            std::vector<City> cities;
+            db.popAll(cities);
+            size_t i = 0;
+            for (City const & city : cities) {
+                x[i]["city_id"] = city.id;
+                x[i]["tenant_id"] = city.tenant_id;
+                x[i]["city_name"] = city.name;
+                x[i]["city_native_name"] = city.name_native;
+                x[i]["latitude"] = city.name_native;
+                x[i]["longitude"] = city.longitude;
+                x[i]["county"] = city.county;
+                x[i]["transportation_region"] = city.transportation_region;
+                x[i]["position_region"] = city.position_region;
+                x[i]["country_code"] = city.country_code;
+                ++i;
+            }
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
         return crow::response{x};
     });
 
     CROW_ROUTE(app, "/city/<string>").methods("GET"_method)
-    ([](const crow::request& req, string uuid){ // compile time input type check
+    ([](const crow::request& req, string id){ // compile time input type check
         Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
-            City city = { uuid };
-            db.popById(city);
+            City city;
+            db.popById(id, city);
             x["city_id"] = city.id;
             x["tenant_id"] = city.tenant_id;
             x["city_name"] = city.name;

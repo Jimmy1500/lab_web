@@ -1,7 +1,8 @@
 #include "Repository.h"
 
 SessionPool * Component::Repository::pool = nullptr;
-size_t Component::Repository::poolRefCount = 0;
+size_t Component::Repository::connectorCount = 0;
+size_t Component::Repository::maxPoolSize = 0;
 
 Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t idleTime) :
     user(getenv("DB_USERNAME")),
@@ -13,28 +14,30 @@ Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t
             ";port=" + port + ";compress=" + compress + ";auto-reconnect=" + autoReconnect + ";"
             )
 {
-    if (poolRefCount && poolRefCount < maxSessions) {
+    if (connectorCount && connectorCount < Component::Repository::maxPoolSize) {
         Poco::Data::MySQL::Connector::registerConnector();
-        poolRefCount++;
-        cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") registed!" << endl;
+        connectorCount++;
+        cout << "Connector " << connectorCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") registed!" << endl;
     } else if (!pool) {
         Poco::Data::MySQL::Connector::registerConnector();
         pool = new SessionPool(Poco::Data::MySQL::Connector::KEY, connectionString, minSessions, maxSessions, idleTime);
-        poolRefCount++;
-        cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") created!" << endl;
+        Component::Repository::maxPoolSize = maxSessions;
+        connectorCount++;
+        cout << "Connector " << connectorCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") created!" << endl;
     }
 }
 
 Component::Repository::~Repository() {
-    if (poolRefCount) {
+    if (connectorCount) {
         Poco::Data::MySQL::Connector::unregisterConnector();
-        poolRefCount--;
-        if (!poolRefCount && pool) {
+        connectorCount--;
+        if (!connectorCount && pool) {
             delete pool;
             pool = nullptr;
-            cout << "Connector " << (poolRefCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") destoryed!" << endl;
+            Component::Repository::maxPoolSize = 0;
+            cout << "Connector " << (connectorCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") destroyed!" << endl;
         } else {
-            cout << "Connector " << (poolRefCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") unregistered!" << endl;
+            cout << "Connector " << (connectorCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") unregistered!" << endl;
         }
     }
 }
@@ -52,19 +55,10 @@ void Component::Repository::insert(Tenant & tenant) {
     insert.execute();
 }
 
-void Component::Repository::popTenants(std::vector<int> & ids, std::vector<string> & names) {
+void Component::Repository::popById(int id, Tenant & tenant) {
     Session session(this->pool->get());
     Poco::Data::Statement select(session);
-    select << "SELECT * FROM tenant", into(ids), into(names), now; //  iterate over result set one row at a time
-    if (ids.size() != names.size()){
-        throw Poco::Data::MySQL::StatementException("query returns results unmatched in size");
-    }
-}
-
-void Component::Repository::popById(Tenant & tenant) {
-    Session session(this->pool->get());
-    Poco::Data::Statement select(session);
-    select << "SELECT * FROM tenant WHERE tenant_id = ?", use(tenant.id), into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
+    select << "SELECT * FROM tenant WHERE tenant_id = ?", use(id), into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
     while (!select.done())
     {
         select.execute();
@@ -72,7 +66,44 @@ void Component::Repository::popById(Tenant & tenant) {
     }
 }
 
-void Component::Repository::scanCities() {
+void Component::Repository::popById(string & id, City & city) {
+    Session session(this->pool->get());
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM city WHERE city_id = ?",
+           use(id),
+           into(city.id),
+           into(city.tenant_id),
+           into(city.name),
+           into(city.name_native),
+           into(city.latitude),
+           into(city.longitude),
+           into(city.county),
+           into(city.transportation_region),
+           into(city.position_region),
+           into(city.country_code), now;
+}
+
+void Component::Repository::popTenants(std::vector<int> & ids, std::vector<string> & names) {
+    Session session(this->pool->get());
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM tenant", into(ids), into(names), now;
+    if (ids.size() != names.size()){
+        throw Poco::Data::MySQL::StatementException("query returns results unmatched in size");
+    }
+}
+
+void Component::Repository::popAll(std::vector<Tenant> & tenants) {
+    Tenant tenant;
+    Session session(this->pool->get());
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM tenant", into(tenant.id), into(tenant.name), range(0,1);
+    while (!select.done()) {
+        select.execute();
+        tenants.push_back(tenant);
+    }
+}
+
+void Component::Repository::popAll(std::vector<City> & cities) {
     City city;
     Session session(this->pool->get());
     Poco::Data::Statement select(session);
@@ -91,47 +122,6 @@ void Component::Repository::scanCities() {
     while (!select.done())
     {
         select.execute();
-        cout << city.id << " "
-                << city.name << " "
-                << city.name_native << " "
-                << city.latitude << " "
-                << city.longitude << " "
-                << city.county << " "
-                << city.transportation_region << " "
-                << city.position_region << " "
-                << city.country_code << " "
-                << endl;
-    }
-}
-
-void Component::Repository::popById(City & city) {
-    Session session(this->pool->get());
-    Poco::Data::Statement select(session);
-    select << "SELECT * FROM city WHERE city_id = ?",
-           use(city.id),
-           into(city.id),
-           into(city.tenant_id),
-           into(city.name),
-           into(city.name_native),
-           into(city.latitude),
-           into(city.longitude),
-           into(city.county),
-           into(city.transportation_region),
-           into(city.position_region),
-           into(city.country_code), range(0, 1);
-
-    while (!select.done())
-    {
-        select.execute();
-        cout << city.id << " "
-                << city.name << " "
-                << city.name_native << " "
-                << city.latitude << " "
-                << city.longitude << " "
-                << city.county << " "
-                << city.transportation_region << " "
-                << city.position_region << " "
-                << city.country_code << " "
-                << endl;
+        cities.push_back(city);
     }
 }
