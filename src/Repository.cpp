@@ -13,11 +13,12 @@ Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t
             ";port=" + port + ";compress=" + compress + ";auto-reconnect=" + autoReconnect + ";"
             )
 {
-    Poco::Data::MySQL::Connector::registerConnector(); 
-    if (poolRefCount) {
+    if (poolRefCount && poolRefCount < maxSessions) {
+        Poco::Data::MySQL::Connector::registerConnector();
         poolRefCount++;
         cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") registed!" << endl;
     } else if (!pool) {
+        Poco::Data::MySQL::Connector::registerConnector();
         pool = new SessionPool(Poco::Data::MySQL::Connector::KEY, connectionString, minSessions, maxSessions, idleTime);
         poolRefCount++;
         cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") created!" << endl;
@@ -25,8 +26,8 @@ Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t
 }
 
 Component::Repository::~Repository() {
-    Poco::Data::MySQL::Connector::unregisterConnector(); 
     if (poolRefCount) {
+        Poco::Data::MySQL::Connector::unregisterConnector();
         poolRefCount--;
         if (!poolRefCount && pool) {
             delete pool;
@@ -38,21 +39,14 @@ Component::Repository::~Repository() {
     }
 }
 
-Session Component::Repository::getSession() {
-    // return Poco::Data::SessionFactory::instance().create(Poco::Data::MySQL::Connector::KEY, connectionString);
-    // return Session(Poco::Data::MySQL::Connector::KEY, connectionString);
-    // return Session("MySQL", connectionString);
-    return this->pool->get(); // Not thread safe, probably need to mutex lock it
-}
-
 void Component::Repository::initTenant() {
-    Session session(getSession());
+    Session session(this->pool->get());
     session << "DROP TABLE IF EXISTS tenant", now;
     session << "CREATE TABLE tenant (tenant_id int(30), tenant_name VARCHAR(45), inserted_date DATETIME, updated_data DATETIME)", now;
 }
 
 void Component::Repository::insert(Tenant & tenant) {
-    Session session(getSession());
+    Session session(this->pool->get());
     Poco::Data::Statement insert(session);
     insert << "INSERT INTO tenant (tenant_name) (SELECT ? WHERE NOT EXISTS (SELECT * FROM tenant WHERE tenant_name = ?))", use(tenant.name), use(tenant.name);
     insert.execute();
@@ -62,7 +56,7 @@ void Component::Repository::popAll(std::vector<Tenant> & tenants) {
     std::vector<int> ids;
     std::vector<string> names;
 
-    Session session(getSession());
+    Session session(this->pool->get());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM tenant", into(ids), into(names), now; //  iterate over result set one row at a time
     if (ids.size() != names.size()){
@@ -76,7 +70,7 @@ void Component::Repository::popAll(std::vector<Tenant> & tenants) {
 }
 
 void Component::Repository::popById(Tenant & tenant) {
-    Session session(getSession());
+    Session session(this->pool->get());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM tenant WHERE tenant_id = ?", use(tenant.id), into(tenant.id), into(tenant.name), range(0, 1); //  iterate over result set one row at a time
     while (!select.done())
@@ -88,7 +82,7 @@ void Component::Repository::popById(Tenant & tenant) {
 
 void Component::Repository::scanCities() {
     City city;
-    Session session(getSession());
+    Session session(this->pool->get());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM city",
            into(city.id),
@@ -119,7 +113,7 @@ void Component::Repository::scanCities() {
 }
 
 void Component::Repository::popById(City & city) {
-    Session session(getSession());
+    Session session(this->pool->get());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM city WHERE city_id = ?",
            use(city.id),

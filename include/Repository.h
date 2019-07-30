@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 using namespace std;
 using namespace Poco::Data::Keywords;
@@ -55,8 +56,6 @@ namespace Component {
         public:
             Repository(size_t minSessions = 1, size_t maxSessions = 32, size_t idleTime = 60);
             ~Repository();
-
-            Session getSession();
 
             void initTenant();
 
