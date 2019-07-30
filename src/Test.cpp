@@ -25,6 +25,28 @@ int main(int argc, char * argv[])
         return x;
     });
 
+    CROW_ROUTE(app, "/tenant").methods("GET"_method)
+    ([](){
+        Component::Repository db = Component::Repository();
+        crow::json::wvalue x;
+        try{
+            std::vector<int> ids;
+            std::vector<string> names;
+            db.popTenants(ids, names);
+            size_t i;
+            for (i = 0; i < ids.size(); ++i) {
+                x[i]["tenant_id"] = ids.at(i);
+                x[i]["name"] = names.at(i);
+            }
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
+        // return x;
+        return crow::response{x};
+    });
+
     CROW_ROUTE(app, "/tenant/<int>").methods("GET"_method)
     ([](const crow::request& req, int id){ // compile time input type check
         Component::Repository db = Component::Repository();

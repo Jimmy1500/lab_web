@@ -52,20 +52,12 @@ void Component::Repository::insert(Tenant & tenant) {
     insert.execute();
 }
 
-void Component::Repository::popAll(std::vector<Tenant> & tenants) {
-    std::vector<int> ids;
-    std::vector<string> names;
-
+void Component::Repository::popTenants(std::vector<int> & ids, std::vector<string> & names) {
     Session session(this->pool->get());
     Poco::Data::Statement select(session);
     select << "SELECT * FROM tenant", into(ids), into(names), now; //  iterate over result set one row at a time
     if (ids.size() != names.size()){
         throw Poco::Data::MySQL::StatementException("query returns results unmatched in size");
-    }
-    size_t i;
-    for ( i = 0; i < ids.size(); ++i ) {
-        tenants.push_back( { ids.at(i), names.at(i) } );
-        cout << ids.at(i) << " " << names.at(i) << endl;
     }
 }
 
