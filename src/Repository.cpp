@@ -16,11 +16,11 @@ Component::Repository::Repository(size_t minSessions, size_t maxSessions, size_t
     Poco::Data::MySQL::Connector::registerConnector(); 
     if (poolRefCount) {
         poolRefCount++;
-        cout << "Connector " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << " registed with: " << connectionString << endl;
+        cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") registed!" << endl;
     } else if (!pool) {
         pool = new SessionPool(Poco::Data::MySQL::Connector::KEY, connectionString, minSessions, maxSessions, idleTime);
         poolRefCount++;
-        cout << "Connector " << poolRefCount << " -> " << Poco::Data::MySQL::Connector::KEY << ", created with: " << connectionString << endl;
+        cout << "Connector " << poolRefCount << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") created!" << endl;
     }
 }
 
@@ -31,9 +31,9 @@ Component::Repository::~Repository() {
         if (!poolRefCount && pool) {
             delete pool;
             pool = nullptr;
-            cout << "Connector " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " destoryed with: " << connectionString << endl;
+            cout << "Connector " << (poolRefCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") destoryed!" << endl;
         } else {
-            cout << "Connector " << (poolRefCount+1) << " -> " << Poco::Data::MySQL::Connector::KEY << " unregistered with: " << connectionString << endl;
+            cout << "Connector " << (poolRefCount+1) << " -> Database (" << Poco::Data::MySQL::Connector::KEY << ") unregistered!" << endl;
         }
     }
 }
