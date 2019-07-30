@@ -117,6 +117,68 @@ int main(int argc, char * argv[])
         return crow::response{x};
     });
 
+    CROW_ROUTE(app, "/city_pair_distance").methods("GET"_method)
+    ([](){
+        Component::Repository db = Component::Repository();
+        crow::json::wvalue x;
+        try{
+            std::vector<CityPairDistance> cityPairDistances;
+            db.popAll(cityPairDistances);
+            size_t i = 0;
+            for (CityPairDistance const & cityPairDistance : cityPairDistances) {
+                x[i]["city_pair_distance_id"] = cityPairDistance.id;
+                x[i]["tenant_id"] = cityPairDistance.tenant_id;
+                x[i]["city_from_id"] = cityPairDistance.city_from_id;
+                x[i]["city_to_id"] = cityPairDistance.city_to_id;
+                x[i]["distance"] = cityPairDistance.distance;
+
+                int hour = cityPairDistance.inserted_date.hour();
+                int minute = cityPairDistance.inserted_date.minute();
+                int second = cityPairDistance.inserted_date.second();
+                x[i]["inserted_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
+                hour = cityPairDistance.updated_date.hour();
+                minute = cityPairDistance.updated_date.minute();
+                second = cityPairDistance.updated_date.second();
+                x[i]["updated_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
+                ++i;
+            }
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
+        return crow::response{x};
+    });
+
+    CROW_ROUTE(app, "/city_pair_distance/<string>").methods("GET"_method)
+    ([](const crow::request& req, string id){
+        Component::Repository db = Component::Repository();
+        crow::json::wvalue x;
+        try{
+            CityPairDistance cityPairDistance;
+            db.popById(id, cityPairDistance);
+            x["city_pair_distance_id"] = cityPairDistance.id;
+            x["tenant_id"] = cityPairDistance.tenant_id;
+            x["city_from_id"] = cityPairDistance.city_from_id;
+            x["city_to_id"] = cityPairDistance.city_to_id;
+            x["distance"] = cityPairDistance.distance;
+
+            int hour = cityPairDistance.inserted_date.hour();
+            int minute = cityPairDistance.inserted_date.minute();
+            int second = cityPairDistance.inserted_date.second();
+            x["inserted_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
+            hour = cityPairDistance.updated_date.hour();
+            minute = cityPairDistance.updated_date.minute();
+            second = cityPairDistance.updated_date.second();
+            x["updated_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
+        } catch (Poco::Data::MySQL::ConnectionException& e) {
+            cout << e.what() << endl;
+        } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        }
+        return crow::response{x};
+    });
+
     CROW_ROUTE(app, "/html").methods("GET"_method)
     ([](){
         return crow::response {

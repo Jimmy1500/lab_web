@@ -1,6 +1,7 @@
 #ifndef REPOSITORY_H
 #define REPOSITORY_H
 
+#include <Poco/Data/Time.h>
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/Session.h>
 #include <Poco/Data/SessionPool.h>
@@ -15,6 +16,7 @@
 
 using namespace std;
 using namespace Poco::Data::Keywords;
+using Poco::Data::Time;
 using Poco::Data::Session;
 using Poco::Data::SessionPool;
 using Poco::Data::SessionFactory;
@@ -37,6 +39,17 @@ struct City
     string      transportation_region;
     string      position_region;
     string      country_code;
+};
+
+struct CityPairDistance
+{
+    string      id;
+    int         tenant_id;
+    string      city_from_id;
+    string      city_to_id;
+    double      distance;
+    Time        inserted_date;
+    Time        updated_date;
 };
 
 namespace Component {
@@ -62,10 +75,12 @@ namespace Component {
             void insert(Tenant & );
             void popById(int, Tenant &);
             void popById(string &, City &);
+            void popById(string &, CityPairDistance &);
 
             void popTenants(std::vector<int> &, std::vector<string> &);
             void popAll(std::vector<Tenant> &);
             void popAll(std::vector<City> &);
+            void popAll(std::vector<CityPairDistance> &);
 
     };
 }

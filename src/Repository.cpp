@@ -83,6 +83,20 @@ void Component::Repository::popById(string & id, City & city) {
            into(city.country_code), now;
 }
 
+void Component::Repository::popById(string & id, CityPairDistance & cityPairDistance) {
+    Session session(this->pool->get());
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM city_pair_distance WHERE city_pair_distance_id = ?",
+           use(id),
+           into(cityPairDistance.id),
+           into(cityPairDistance.tenant_id),
+           into(cityPairDistance.city_from_id),
+           into(cityPairDistance.city_to_id),
+           into(cityPairDistance.distance),
+           into(cityPairDistance.inserted_date),
+           into(cityPairDistance.updated_date), now;
+}
+
 void Component::Repository::popTenants(std::vector<int> & ids, std::vector<string> & names) {
     Session session(this->pool->get());
     Poco::Data::Statement select(session);
@@ -123,5 +137,30 @@ void Component::Repository::popAll(std::vector<City> & cities) {
     {
         select.execute();
         cities.push_back(city);
+    }
+}
+
+void Component::Repository::popAll(std::vector<CityPairDistance> & cityPairDistances) {
+    CityPairDistance cityPairDistance;
+    Session session(this->pool->get());
+    Poco::Data::Statement select(session);
+    select << "SELECT * FROM city_pair_distance",
+           into(cityPairDistance.id),
+           into(cityPairDistance.tenant_id),
+           into(cityPairDistance.city_from_id),
+           into(cityPairDistance.city_to_id),
+           into(cityPairDistance.distance),
+           into(cityPairDistance.inserted_date),
+           into(cityPairDistance.updated_date), range(0, 1);
+
+    while (!select.done())
+    {
+        select.execute();
+        cityPairDistances.push_back(cityPairDistance);
+        cout << cityPairDistance.id << endl;
+        cout << cityPairDistance.tenant_id << endl;
+        cout << cityPairDistance.city_from_id << endl;
+        cout << cityPairDistance.city_to_id << endl;
+        cout << cityPairDistance.distance << endl;
     }
 }
