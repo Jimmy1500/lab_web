@@ -11,7 +11,6 @@ using namespace std;
 int main(int argc, char * argv[])
 {
     crow::SimpleApp app;
-    Component::Repository repo = Component::Repository();
     // app.loglevel(crow::LogLevel::Warning);
 
     CROW_ROUTE(app, "/")
@@ -27,11 +26,12 @@ int main(int argc, char * argv[])
     });
 
     CROW_ROUTE(app, "/tenant/<int>").methods("GET"_method)
-    ([&repo](const crow::request& req, int id){ // compile time input type check
+    ([](const crow::request& req, int id){ // compile time input type check
+        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             Tenant tenant = { id };
-            repo.popById(tenant);
+            db.popById(tenant);
             x["tenant_id"] = tenant.id;
             x["name"] = tenant.name;
         } catch (Poco::Data::MySQL::ConnectionException& e) {
@@ -44,11 +44,12 @@ int main(int argc, char * argv[])
     });
 
     CROW_ROUTE(app, "/city/<string>").methods("GET"_method)
-    ([&repo](const crow::request& req, string uuid){ // compile time input type check
+    ([](const crow::request& req, string uuid){ // compile time input type check
+        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             City city = { uuid };
-            repo.popById(city);
+            db.popById(city);
             x["city_id"] = city.id;
             x["tenant_id"] = city.tenant_id;
             x["city_name"] = city.name;
