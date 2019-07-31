@@ -146,33 +146,56 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/city_pair_distance").methods("GET"_method)
     ([](){
-        crow::json::wvalue x;
+        StringBuffer s;
         try{
             std::vector<CityPairDistance> cityPairDistances;
             Component::Repository db = Component::Repository();
             db.popAll(cityPairDistances);
-            size_t i = 0;
-            for (CityPairDistance const & cityPairDistance : cityPairDistances) {
-                x[i]["city_pair_distance_id"] = cityPairDistance.id;
-                x[i]["tenant_id"] = cityPairDistance.tenant_id;
-                x[i]["city_from_id"] = cityPairDistance.city_from_id;
-                x[i]["city_to_id"] = cityPairDistance.city_to_id;
-                x[i]["distance"] = cityPairDistance.distance;
 
-                int hour = cityPairDistance.inserted_date.hour();
-                int minute = cityPairDistance.inserted_date.minute();
-                int second = cityPairDistance.inserted_date.second();
-                x[i]["inserted_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
-                x[i]["updated_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
-                ++i;
-                // cout << i << endl;
+            size_t i = 0;
+            // PrettyWriter<StringBuffer> writer(s);
+            Writer<StringBuffer> writer(s);
+            writer.StartObject();
+            writer.Key("success");
+            writer.StartArray();
+            for (CityPairDistance const & cityPairDistance : cityPairDistances) {
+                writer.StartObject();
+                writer.Key("id");
+                writer.String(cityPairDistance.id.c_str());
+                writer.Key("tenant_id");
+                writer.Uint(cityPairDistance.tenant_id);
+                writer.Key("city_from_id");
+                writer.String(cityPairDistance.city_from_id.c_str());
+                writer.Key("city_to_id");
+                writer.String(cityPairDistance.city_to_id.c_str());
+                writer.Key("distance");
+                writer.Double(cityPairDistance.distance);
+
+                int hh = cityPairDistance.inserted_date.hour();
+                int mm = cityPairDistance.inserted_date.minute();
+                int ss = cityPairDistance.inserted_date.second();
+                string hhMMss = to_string(hh) + "::" + to_string(mm) + "::" + to_string(ss);
+                writer.Key("inserted time");
+                writer.String(hhMMss.c_str());
+
+                hh = cityPairDistance.updated_date.hour();
+                mm = cityPairDistance.updated_date.minute();
+                ss = cityPairDistance.updated_date.second();
+                hhMMss = to_string(hh) + "::" + to_string(mm) + "::" + to_string(ss);
+                writer.Key("updated time");
+                writer.String(hhMMss.c_str());
+                writer.EndObject();
             }
+            writer.EndArray();
+            writer.EndObject();
         } catch (Poco::Data::MySQL::ConnectionException& e) {
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
         }
-        return crow::response{x};
+        // crow::json::wvalue x();
+        // return crow::response{crow::json::load(s.GetString(), strlen(s.GetString()))};
+        return crow::response{s.GetString()};
     });
 
     CROW_ROUTE(app, "/city_pair_distance/<string>").methods("GET"_method)
