@@ -2,11 +2,16 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include "rapidjson/writer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/document.h"
 #include <Poco/Data/MySQL/MySQLException.h>
 #include "crow_all.h"
 #include "Repository.h"
 
 using namespace std;
+using namespace rapidjson;
 
 int main(int argc, char * argv[])
 {
@@ -20,9 +25,31 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/health")
     ([]{
-        crow::json::wvalue x;
-        x["message"] = "Hello, World!";
-        return x;
+        StringBuffer s;
+        Writer<StringBuffer> writer(s);
+        writer.StartObject();
+        writer.Key("hello");
+        writer.String("world");
+        writer.Key("t");
+        writer.Bool(true);
+        writer.Key("f");
+        writer.Bool(false);
+        writer.Key("n");
+        writer.Null();
+        writer.Key("i");
+        writer.Uint(123);
+        writer.Key("pi");
+        writer.Double(3.1416);
+        writer.Key("a");
+        writer.StartArray();
+        for (unsigned i = 0; i < 4; i++)
+            writer.Uint(i);
+        writer.EndArray();
+        writer.EndObject();
+        cout << s.GetString() <<endl;
+        crow::json::wvalue x(crow::json::load(s.GetString(), strlen(s.GetString())));
+
+        return crow::response(200, x);
     });
 
     CROW_ROUTE(app, "/tenant").methods("GET"_method)
