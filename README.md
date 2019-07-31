@@ -8,12 +8,12 @@ C++ Webservice (Hodge Podge Framework) Demo (End to End)
 [RapidJSON](http://rapidjson.org)
 
 ## Database Connection
-[Portable Component(POCO C++)](https://pocoproject.org)
+[Portable Component (POCO C++)](https://pocoproject.org)
 
 ## Database:
 MySQL
 
-### Conclusion:
-crow seems promising, but showed significant performance degradation / hangs 
+## Conclusion:
+crow seems promising, but showed significant performance degradation / hanging 
 when native supported json type object with huge content was returned in response
-However, returning the same json as string in response works fine, should be a bug.
+However, returning the same json as string in response works just fine, should be a bug.
