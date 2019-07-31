@@ -157,10 +157,5 @@ void Component::Repository::popAll(std::vector<CityPairDistance> & cityPairDista
     {
         select.execute();
         cityPairDistances.push_back(cityPairDistance);
-        cout << cityPairDistance.id << endl;
-        cout << cityPairDistance.tenant_id << endl;
-        cout << cityPairDistance.city_from_id << endl;
-        cout << cityPairDistance.city_to_id << endl;
-        cout << cityPairDistance.distance << endl;
     }
 }

@@ -27,10 +27,10 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/tenant").methods("GET"_method)
     ([](){
-        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             std::vector<Tenant> tenants;
+            Component::Repository db = Component::Repository();
             db.popAll(tenants);
             size_t i = 0;
             for (Tenant const & tenant : tenants) {
@@ -48,10 +48,10 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/tenant/<int>").methods("GET"_method)
     ([](const crow::request& req, int id){ // compile time input type check
-        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             Tenant tenant;
+            Component::Repository db = Component::Repository();
             db.popById(id, tenant);
             x["tenant_id"] = tenant.id;
             x["name"] = tenant.name;
@@ -65,10 +65,10 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/city").methods("GET"_method)
     ([](){
-        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             std::vector<City> cities;
+            Component::Repository db = Component::Repository();
             db.popAll(cities);
             size_t i = 0;
             for (City const & city : cities) {
@@ -94,10 +94,10 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/city/<string>").methods("GET"_method)
     ([](const crow::request& req, string id){ // compile time input type check
-        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             City city;
+            Component::Repository db = Component::Repository();
             db.popById(id, city);
             x["city_id"] = city.id;
             x["tenant_id"] = city.tenant_id;
@@ -119,10 +119,10 @@ int main(int argc, char * argv[])
 
     CROW_ROUTE(app, "/city_pair_distance").methods("GET"_method)
     ([](){
-        Component::Repository db = Component::Repository();
         crow::json::wvalue x;
         try{
             std::vector<CityPairDistance> cityPairDistances;
+            Component::Repository db = Component::Repository();
             db.popAll(cityPairDistances);
             size_t i = 0;
             for (CityPairDistance const & cityPairDistance : cityPairDistances) {
@@ -136,11 +136,9 @@ int main(int argc, char * argv[])
                 int minute = cityPairDistance.inserted_date.minute();
                 int second = cityPairDistance.inserted_date.second();
                 x[i]["inserted_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
-                hour = cityPairDistance.updated_date.hour();
-                minute = cityPairDistance.updated_date.minute();
-                second = cityPairDistance.updated_date.second();
                 x[i]["updated_date"] = std::to_string(hour) + ":" + std::to_string(minute) + ":" + std::to_string(second);
                 ++i;
+                // cout << i << endl;
             }
         } catch (Poco::Data::MySQL::ConnectionException& e) {
             cout << e.what() << endl;
