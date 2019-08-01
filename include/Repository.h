@@ -81,6 +81,12 @@ namespace Component {
                 cout << "Database session pool destroyed!" << endl;
             }
 
+            static inline void MarkDirty(size_t flag){ mask |= flag; }
+            static inline void MarkDirtyAll(){ size_t i; for (i=DBSESSIONPOOL; i<NUM_FLAGS; i<<=1u){ mask |= i; } }
+            static inline void ClearDirty(size_t flag){ mask &= ~flag; }
+            static inline void ClearDirtyAll(){ mask=0; }
+            static inline size_t IsDirty(size_t flag){ return mask & flag; }
+
             void CreateTenant();
             void Insert(Tenant & );
             void PopById(int, Tenant &);
@@ -91,12 +97,6 @@ namespace Component {
             void PopAll(std::vector<Tenant> &);
             void PopAll(std::vector<City> &);
             void PopAll(std::vector<CityPairDistance> &);
-
-            static inline void MarkDirty(size_t flag){ mask |= flag; }
-            static inline void MarkDirtyAll(){ size_t i; for (i=DBSESSIONPOOL; i<NUM_FLAGS; i<<=1u){ mask |= i; } }
-            static inline void ClearDirty(size_t flag){ mask &= ~flag; }
-            static inline void ClearDirtyAll(){ mask=0; }
-            static inline size_t IsDirty(size_t flag){ return mask & flag; }
 
     };
 }
