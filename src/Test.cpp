@@ -167,8 +167,6 @@ int main(int argc, char * argv[])
             size_t i = 0;
             // PrettyWriter<StringBuffer> writer(s);
             Writer<StringBuffer> writer(s);
-            writer.StartObject();
-            writer.Key("success");
             writer.StartArray();
             for (CityPairDistance const & cityPairDistance : cityPairDistances) {
                 writer.StartObject();
@@ -199,7 +197,6 @@ int main(int argc, char * argv[])
                 writer.EndObject();
             }
             writer.EndArray();
-            writer.EndObject();
         } catch (Poco::Data::MySQL::ConnectionException& e) {
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
