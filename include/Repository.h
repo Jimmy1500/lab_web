@@ -88,7 +88,7 @@ namespace Component {
             static inline size_t IsDirty(size_t flag){ return mask & flag; }
 
             void CreateTenant();
-            void Insert(Tenant & );
+            void Insert(Tenant &);
             void PopById(int, Tenant &);
             void PopById(string &, City &);
             void PopById(string &, CityPairDistance &);
