@@ -15,6 +15,21 @@ using namespace rapidjson;
 
 int main(int argc, char * argv[])
 {
+    string connectionString("host=");
+    if (!Component::Repository::IsDirty(Component::DBSESSIONPOOL)) {
+        string host="127.0.0.1";
+        string user(getenv("DB_USERNAME"));
+        string password(getenv("DB_PASSWORD"));
+        string db(getenv("DB_DATABASE"));
+        string port="3306";
+        string compress="true";
+        string autoReconnect="true";
+        connectionString.append(host + ";user=" + user + ";password=" + password + ";db=" + db + ";port=" + port + ";compress=" + compress + ";auto-reconnect=" + autoReconnect + ";");
+
+        size_t minSessions = 1, maxSessions = 32, idleTime = 60;
+        Component::Repository::Init(Poco::Data::MySQL::Connector::KEY, connectionString, minSessions, maxSessions, idleTime);
+    }
+
     crow::SimpleApp app;
     // app.loglevel(crow::LogLevel::Warning);
 
@@ -24,27 +39,19 @@ int main(int argc, char * argv[])
     });
 
     CROW_ROUTE(app, "/health")
-    ([]{
+    ([&connectionString]{
         StringBuffer s;
         Writer<StringBuffer> writer(s);
         writer.StartObject();
-        writer.Key("hello");
-        writer.String("world");
-        writer.Key("t");
-        writer.Bool(true);
-        writer.Key("f");
-        writer.Bool(false);
-        writer.Key("n");
-        writer.Null();
-        writer.Key("i");
-        writer.Uint(123);
-        writer.Key("pi");
-        writer.Double(3.1416);
-        writer.Key("a");
+        writer.Key("home");
+        writer.String("hello world");
+        writer.Key("config");
+
         writer.StartArray();
-        for (unsigned i = 0; i < 4; i++)
-            writer.Uint(i);
+        writer.StartObject(); writer.Key("database"); writer.String(Poco::Data::MySQL::Connector::KEY.c_str()); writer.EndObject();
+        writer.StartObject(); writer.Key("connection"); writer.String(connectionString.c_str()); writer.EndObject();
         writer.EndArray();
+
         writer.EndObject();
         cout << s.GetString() <<endl;
         crow::json::wvalue x(crow::json::load(s.GetString(), strlen(s.GetString())));
@@ -58,7 +65,7 @@ int main(int argc, char * argv[])
         try{
             std::vector<Tenant> tenants;
             Component::Repository db = Component::Repository();
-            db.popAll(tenants);
+            db.PopAll(tenants);
             size_t i = 0;
             for (Tenant const & tenant : tenants) {
                 x[i]["tenant_id"] = tenant.id;
@@ -68,6 +75,8 @@ int main(int argc, char * argv[])
         } catch (Poco::Data::MySQL::ConnectionException& e) {
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
+            cout << e.what() << endl;
+        } catch (std::exception& e) {
             cout << e.what() << endl;
         }
         return crow::response{x};
@@ -79,7 +88,7 @@ int main(int argc, char * argv[])
         try{
             Tenant tenant;
             Component::Repository db = Component::Repository();
-            db.popById(id, tenant);
+            db.PopById(id, tenant);
             x["tenant_id"] = tenant.id;
             x["name"] = tenant.name;
         } catch (Poco::Data::MySQL::ConnectionException& e) {
@@ -96,7 +105,7 @@ int main(int argc, char * argv[])
         try{
             std::vector<City> cities;
             Component::Repository db = Component::Repository();
-            db.popAll(cities);
+            db.PopAll(cities);
             size_t i = 0;
             for (City const & city : cities) {
                 x[i]["city_id"] = city.id;
@@ -125,7 +134,7 @@ int main(int argc, char * argv[])
         try{
             City city;
             Component::Repository db = Component::Repository();
-            db.popById(id, city);
+            db.PopById(id, city);
             x["city_id"] = city.id;
             x["tenant_id"] = city.tenant_id;
             x["city_name"] = city.name;
@@ -140,6 +149,8 @@ int main(int argc, char * argv[])
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
+        } catch (std::exception& e) {
+            cout << e.what() << endl;
         }
         return crow::response{x};
     });
@@ -150,7 +161,7 @@ int main(int argc, char * argv[])
         try{
             std::vector<CityPairDistance> cityPairDistances;
             Component::Repository db = Component::Repository();
-            db.popAll(cityPairDistances);
+            db.PopAll(cityPairDistances);
 
             size_t i = 0;
             // PrettyWriter<StringBuffer> writer(s);
@@ -192,6 +203,8 @@ int main(int argc, char * argv[])
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
+        } catch (std::exception& e) {
+            cout << e.what() << endl;
         }
         // crow::json::wvalue x();
         // return crow::response{crow::json::load(s.GetString(), strlen(s.GetString()))};
@@ -204,7 +217,7 @@ int main(int argc, char * argv[])
         crow::json::wvalue x;
         try{
             CityPairDistance cityPairDistance;
-            db.popById(id, cityPairDistance);
+            db.PopById(id, cityPairDistance);
             x["city_pair_distance_id"] = cityPairDistance.id;
             x["tenant_id"] = cityPairDistance.tenant_id;
             x["city_from_id"] = cityPairDistance.city_from_id;
@@ -223,6 +236,8 @@ int main(int argc, char * argv[])
             cout << e.what() << endl;
         } catch (Poco::Data::MySQL::StatementException& e) {
             cout << e.what() << endl;
+        } catch (std::exception& e) {
+            cout << e.what() << endl;
         }
         return crow::response{x};
     });
@@ -238,5 +253,6 @@ int main(int argc, char * argv[])
     });
     app.port(8080).multithreaded().run();
 
+    Component::Repository::Release();
     return 0;
 }

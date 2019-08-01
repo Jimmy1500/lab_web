@@ -53,34 +53,50 @@ struct CityPairDistance
 };
 
 namespace Component {
+    enum Flag {
+        DBSESSIONPOOL=1,
+        NUM_FLAGS
+    };
+
     class Repository {
         private:
-            string host="127.0.0.1";
-            string user;
-            string password;
-            string db;
-            string port="3306";
-            string compress="true";
-            string autoReconnect="true";
-            string connectionString;
-
-            static SessionPool * pool;
-            static size_t maxPoolSize;
-            static size_t connectorCount;
+            static unique_ptr<SessionPool> pool;
+            static size_t mask;
         public:
-            Repository(size_t minSessions = 1, size_t maxSessions = 32, size_t idleTime = 60);
+            Repository();
             ~Repository();
 
-            void initTenant();
-            void insert(Tenant & );
-            void popById(int, Tenant &);
-            void popById(string &, City &);
-            void popById(string &, CityPairDistance &);
+            static inline void Init(string & dbType, string & connectionString, size_t minSessions, size_t maxSessions, size_t idleTime){
+                if (!IsDirty(DBSESSIONPOOL)) {
+                    pool = make_unique<Poco::Data::SessionPool>(dbType, connectionString, minSessions, maxSessions, idleTime);
+                    cout << "Database session pool created!" << endl;
+                    MarkDirty(DBSESSIONPOOL);
+                }
+            }
 
-            void popTenants(std::vector<int> &, std::vector<string> &);
-            void popAll(std::vector<Tenant> &);
-            void popAll(std::vector<City> &);
-            void popAll(std::vector<CityPairDistance> &);
+            static inline void Release() {
+                if (IsDirty(DBSESSIONPOOL)) {
+                    pool.reset();
+                }
+                cout << "Database session pool destroyed!" << endl;
+            }
+
+            void CreateTenant();
+            void Insert(Tenant & );
+            void PopById(int, Tenant &);
+            void PopById(string &, City &);
+            void PopById(string &, CityPairDistance &);
+
+            void PopTenants(std::vector<int> &, std::vector<string> &);
+            void PopAll(std::vector<Tenant> &);
+            void PopAll(std::vector<City> &);
+            void PopAll(std::vector<CityPairDistance> &);
+
+            static inline void MarkDirty(size_t flag){ mask |= flag; }
+            static inline void MarkDirtyAll(){ size_t i; for (i=DBSESSIONPOOL; i<NUM_FLAGS; i<<=1u){ mask |= i; } }
+            static inline void ClearDirty(size_t flag){ mask &= ~flag; }
+            static inline void ClearDirtyAll(){ mask=0; }
+            static inline size_t IsDirty(size_t flag){ return mask & flag; }
 
     };
 }
