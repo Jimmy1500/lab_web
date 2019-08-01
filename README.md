@@ -16,7 +16,7 @@ MySQL
 ## Observation:
 ### crow
 Framework seems promising, but:  
-1. exhibits significant performance degradation / hanging behavior when native supported json type object with large content was returned in response  
+1. exhibits significant performance degradation / hanging behavior when natively supported json type object with large content was returned in response  
 However, returning the same json as string in response works just fine, should be a bug.
 2. Memory leak in web socket implementation on exit observed  
 
