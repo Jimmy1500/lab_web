@@ -1,7 +1,7 @@
 # core
 C++ (Hodge Podge) Webservice Framework Investigation (End to End)  
 
-## Webframework (crow)
+## Crow (Webservice Microframework)
 [Crow](https://github.com/ipkn/crow.git)
 
 ## JSON Parser
@@ -14,8 +14,8 @@ C++ (Hodge Podge) Webservice Framework Investigation (End to End)
 MySQL
 
 ## Observation:
-### crow
-Framework seems promising, but:  
+### Crow
+seems promising, but:  
 1. exhibits significant performance degradation / hanging behavior when natively supported json type object with large content was returned in response  
 However, returning the same json as string in response works just fine, should be a bug.
 2. Memory leak in web socket implementation on exit observed  
