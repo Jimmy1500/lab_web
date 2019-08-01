@@ -1,5 +1,5 @@
 # core
-C++ Webservice (Hodge Podge Framework) Investigation (End to End)  
+C++ (Hodge Podge) Webservice Framework Investigation (End to End)  
 
 ## Webframework (crow)
 [Crow](https://github.com/ipkn/crow.git)
