@@ -17,10 +17,11 @@ int main(int argc, char * argv[])
 {
     string connectionString("host=");
     if (!Component::Repository::IsDirty(Component::DBSESSIONPOOL)) {
-        string host="127.0.0.1";
         string user(getenv("DB_USERNAME"));
         string password(getenv("DB_PASSWORD"));
         string db(getenv("DB_DATABASE"));
+
+        string host="127.0.0.1";
         string port="3306";
         string compress="true";
         string autoReconnect="true";
