@@ -25,3 +25,6 @@ Fast and robust, I am pretty happy with it, however, further benchmark against o
 
 ### POCO::DATA
 API well designed and suitable for high performance tasks, I am pretty happy with it, postgres implementation not supported out of box, however, interface provided is clean and can easily suppliment your own implementation
+
+### Databae:
+MySQL works okay but is sort of shitty, will need to investigate Postgres
