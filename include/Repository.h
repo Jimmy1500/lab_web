@@ -1,6 +1,11 @@
 #ifndef REPOSITORY_H
 #define REPOSITORY_H
 
+#include <Poco/JSON/JSON.h>
+#include <Poco/JSON/Object.h>
+#include <Poco/JSON/Stringifier.h>
+#include <Poco/Dynamic/Var.h>
+
 #include <Poco/Data/Time.h>
 #include <Poco/Data/MySQL/Connector.h>
 #include <Poco/Data/Session.h>
@@ -77,6 +82,7 @@ namespace Component {
             static inline void Release() {
                 if (IsDirty(DBSESSIONPOOL)) {
                     pool.reset();
+                    ClearDirty(DBSESSIONPOOL);
                 }
                 cout << "Database session pool destroyed!" << endl;
             }
